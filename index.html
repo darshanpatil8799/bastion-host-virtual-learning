@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071426">
+  <meta name="description" content="An interactive, animated beginner guide to SSH key authentication through an AWS bastion host.">
+  <title>Bastion Host — SSH Learning Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to learning content</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Learning navigation">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">B<span>↗</span></div>
+        <div><p class="eyebrow">AWS LEARNING LAB</p><h1>bastion-host</h1></div>
+      </div>
+      <div class="region-pill"><span class="region-dot"></span> us-east-1 <span class="muted">/ N. Virginia</span></div>
+      <div class="progress-wrap">
+        <div class="progress-copy"><span>YOUR JOURNEY</span><span id="progress-text">Step 1 of 9</span></div>
+        <div class="progress-track" role="progressbar" aria-label="Learning progress" aria-valuemin="1" aria-valuemax="9" aria-valuenow="1" id="progressbar"><span id="progress-fill"></span></div>
+      </div>
+      <nav id="step-nav" class="step-nav" aria-label="Learning steps">
+        <button class="step-link active" data-step="0" aria-current="step"><span class="step-number">01</span><span class="step-label"><strong>Meet the network</strong><small>VPC and two servers</small></span><span class="step-arrow">↗</span></button>
+        <button class="step-link" data-step="1"><span class="step-number">02</span><span class="step-label"><strong>Understand SSH</strong><small>Secure tunnel · port 22</small></span><span class="step-arrow">↗</span></button>
+        <button class="step-link" data-step="2"><span class="step-number">03</span><span class="step-label"><strong>Meet the keys</strong><small>Private vs public</small></span><span class="step-arrow">↗</span></button>
+        <button class="step-link" data-step="3"><span class="step-number">04</span><span class="step-label"><strong>Generate a key pair</strong><small>ssh-keygen</small></span><span class="step-arrow">↗</span></button>
+        <button class="step-link" data-step="4"><span class="step-number">05</span><span class="step-label"><strong>Inspect safely</strong><small>Terminal tour</small></span><span class="step-arrow">↗</span></button>
+        <button class="step-link" data-step="5"><span class="step-number">06</span><span class="step-label"><strong>Authorize the key</strong><small>Approved visitor list</small></span><span class="step-arrow">↗</span></button>
+        <button class="step-link" data-step="6"><span class="step-number">07</span><span class="step-label"><strong>Guard the entrance</strong><small>Security groups</small></span><span class="step-arrow">↗</span></button>
+        <button class="step-link" data-step="7"><span class="step-number">08</span><span class="step-label"><strong>Connect to EC2 B</strong><small>SSH handshake</small></span><span class="step-arrow">↗</span></button>
+        <button class="step-link" data-step="8"><span class="step-number">09</span><span class="step-label"><strong>Verify & troubleshoot</strong><small>Find the fault</small></span><span class="step-arrow">↗</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-controls">
+          <button id="autoplay-btn" class="control-btn" aria-pressed="false"><span aria-hidden="true">▶</span> Auto-play <span class="control-state" id="autoplay-state">Off</span></button>
+          <button id="reset-btn" class="control-btn"><span aria-hidden="true">↺</span> Reset</button>
+          <button id="theme-btn" class="control-btn" aria-pressed="false"><span aria-hidden="true">◐</span> Light mode</button>
+        </div>
+        <p class="made-by">Built to learn, not to expose.<br><strong>#Buildwithvinit</strong></p>
+      </div>
+    </aside>
+
+    <main id="main-content" class="main-content">
+      <header class="topbar">
+        <div><p class="eyebrow">INTERACTIVE FIELD GUIDE <span class="live-dot"></span></p><h2>SSH, made visible.</h2></div>
+        <div class="top-actions"><span class="status-chip"><span class="status-dot"></span> Guided simulation</span><button id="motion-btn" class="icon-btn" aria-pressed="false" title="Toggle animation">⏸ <span class="sr-only">Pause animation</span></button></div>
+      </header>
+      <section class="intro-row">
+        <div><p class="intro-kicker">THE STORY</p><p class="intro-copy">Think of EC2 A as the reception desk and EC2 B as a restricted server room. A verified key, a permitted route, and the right guard rules let you in.</p></div>
+        <div class="legend" aria-label="Moving object legend">
+          <span><i class="legend-key">⚿</i> Key</span><span><i class="legend-envelope">✉</i> Request</span><span><i class="legend-lock">▣</i> Encrypted</span><span><i class="legend-shield">⬟</i> Guard</span><span><i class="legend-check">✓</i> Success</span><span><i class="legend-cross">×</i> Rejected</span>
+        </div>
+      </section>
+
+      <section class="diagram-card" aria-label="Animated AWS network diagram">
+        <div class="diagram-topline"><span><span class="pulse"></span> NETWORK SIMULATION</span><span id="diagram-step-label">01 / 09 · NETWORK OVERVIEW</span></div>
+        <div class="diagram-wrap">
+          <svg id="network-svg" viewBox="0 0 1100 620" role="img" aria-labelledby="svg-title svg-desc">
+            <title id="svg-title">AWS bastion host network and SSH authentication</title>
+            <desc id="svg-desc">A VPC contains a gold public subnet with EC2 A, the bastion host, and a purple private subnet with EC2 B, the private target. Animated symbols demonstrate SSH key authentication.</desc>
+            <defs>
+              <linearGradient id="cloudGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16365b"/><stop offset="1" stop-color="#0c1c32"/></linearGradient>
+              <linearGradient id="vpcGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0e4c55" stop-opacity=".48"/><stop offset="1" stop-color="#0b293d" stop-opacity=".72"/></linearGradient>
+              <linearGradient id="publicGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9a6c20" stop-opacity=".22"/><stop offset="1" stop-color="#64451c" stop-opacity=".12"/></linearGradient>
+              <linearGradient id="privateGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7952b6" stop-opacity=".24"/><stop offset="1" stop-color="#38285e" stop-opacity=".15"/></linearGradient>
+              <filter id="glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#53baff"/></marker>
+              <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#45e0a0"/></marker>
+              <path id="path-ab" d="M 390 315 C 470 250, 615 250, 700 315"/>
+              <path id="path-key" d="M 365 340 C 460 400, 625 400, 730 340"/>
+              <path id="path-request" d="M 385 285 C 480 220, 615 220, 715 285"/>
+              <path id="path-return" d="M 710 355 C 615 420, 475 420, 380 355"/>
+            </defs>
+            <rect x="22" y="18" width="1056" height="584" rx="26" fill="url(#cloudGrad)" stroke="#2b5278" stroke-width="1.5"/>
+            <text x="52" y="55" class="svg-overline" fill="#7ecbff">AWS CLOUD</text>
+            <text x="52" y="78" class="svg-label" fill="#dceeff">US EAST (N. VIRGINIA) · us-east-1</text>
+            <g id="vpc-zone">
+              <rect x="54" y="105" width="992" height="450" rx="22" fill="url(#vpcGrad)" stroke="#2dc7bb" stroke-width="2" stroke-dasharray="8 6"/>
+              <text x="78" y="139" class="svg-overline" fill="#52e3d3">VPC · PRIVATE NETWORK BOUNDARY</text>
+              <text x="78" y="160" class="svg-small" fill="#a4d9d5">10.0.0.0/16 (example CIDR)</text>
+            </g>
+            <g id="subnet-public">
+              <rect x="82" y="185" width="425" height="325" rx="18" fill="url(#publicGrad)" stroke="#e9b84f" stroke-width="1.8"/>
+              <text x="105" y="218" class="svg-overline" fill="#f4c96b">PUBLIC SUBNET</text>
+              <text x="105" y="239" class="svg-small" fill="#d7c49c">Reception area · route to internet gateway</text>
+            </g>
+            <g id="subnet-private">
+              <rect x="590" y="185" width="425" height="325" rx="18" fill="url(#privateGrad)" stroke="#b695f5" stroke-width="1.8"/>
+              <text x="614" y="218" class="svg-overline" fill="#c5a9ff">PRIVATE SUBNET</text>
+              <text x="614" y="239" class="svg-small" fill="#c7b8e5">Restricted server room · no direct public SSH</text>
+            </g>
+            <!-- Network paths are drawn before servers and moving objects. -->
+            <g id="connection-paths" fill="none">
+              <path d="M 295 360 C 365 430, 465 430, 540 360" stroke="#e9b84f" stroke-width="2" stroke-dasharray="5 7" opacity=".5"/>
+              <path d="M 390 315 C 470 250, 615 250, 700 315" stroke="#53baff" stroke-width="3" stroke-dasharray="7 7" opacity=".8" marker-end="url(#arrowBlue)"/>
+              <path d="M 385 355 C 475 420, 615 420, 710 355" stroke="#45e0a0" stroke-width="2.5" stroke-dasharray="6 8" opacity=".65" marker-end="url(#arrowGreen)"/>
+              <path d="M 490 284 L 490 396" stroke="#2dc7bb" stroke-width="1" stroke-dasharray="3 6" opacity=".3"/>
+            </g>
+            <g id="internet-gateway">
+              <rect x="92" y="265" width="82" height="44" rx="10" fill="#12314c" stroke="#4ca9f5"/>
+              <text x="133" y="283" text-anchor="middle" class="svg-mini" fill="#8dd1ff">IGW</text>
+              <text x="133" y="298" text-anchor="middle" class="svg-tiny" fill="#c5e8ff">Internet</text>
+              <path d="M 133 309 V 325 H 185" fill="none" stroke="#4ca9f5" stroke-width="1.5" stroke-dasharray="4 4"/>
+            </g>
+            <g id="instance-a" class="server-node">
+              <rect x="177" y="270" width="210" height="175" rx="17" fill="#102b43" stroke="#e9b84f" stroke-width="2"/>
+              <rect x="192" y="285" width="180" height="40" rx="9" fill="#183d59"/>
+              <circle cx="207" cy="305" r="5" fill="#45e0a0"/><circle cx="223" cy="305" r="5" fill="#e9b84f"/><circle cx="239" cy="305" r="5" fill="#4ca9f5"/>
+              <text x="282" y="312" text-anchor="middle" class="svg-small" fill="#dceeff">EC2 INSTANCE A</text>
+              <g transform="translate(254 342)" fill="none" stroke="#e9b84f" stroke-width="2">
+                <rect x="0" y="0" width="56" height="37" rx="5"/><path d="M8 10 H48 M8 18 H38 M8 26 H44"/><path d="M28 37 V46 M14 46 H42"/>
+              </g>
+              <text x="282" y="410" text-anchor="middle" class="svg-label" fill="#ffe0a0">BASTION HOST</text>
+              <text x="282" y="429" text-anchor="middle" class="svg-small" fill="#c4d6e5">ec2-user · public IP</text>
+            </g>
+            <g id="instance-b" class="server-node">
+              <rect x="685" y="270" width="210" height="175" rx="17" fill="#1e1938" stroke="#b695f5" stroke-width="2"/>
+              <rect x="700" y="285" width="180" height="40" rx="9" fill="#302452"/>
+              <circle cx="715" cy="305" r="5" fill="#45e0a0"/><circle cx="731" cy="305" r="5" fill="#b695f5"/><circle cx="747" cy="305" r="5" fill="#4ca9f5"/>
+              <text x="790" y="312" text-anchor="middle" class="svg-small" fill="#e6dcff">EC2 INSTANCE B</text>
+              <g transform="translate(762 342)" fill="none" stroke="#b695f5" stroke-width="2">
+                <rect x="0" y="0" width="56" height="37" rx="5"/><path d="M8 10 H48 M8 18 H38 M8 26 H44"/><path d="M28 37 V46 M14 46 H42"/>
+              </g>
+              <text x="790" y="410" text-anchor="middle" class="svg-label" fill="#d9c8ff">PRIVATE TARGET</text>
+              <text x="790" y="429" text-anchor="middle" class="svg-small" fill="#d1c8e7">ec2-user · private IP</text>
+            </g>
+            <g id="security-a" class="security-guard" transform="translate(155 462)">
+              <path d="M0 -18 L16 -12 L14 7 L0 18 L-14 7 L-16 -12 Z" fill="#183c54" stroke="#e9b84f" stroke-width="2"/>
+              <path d="M-6 -1 L-1 5 L8 -6" fill="none" stroke="#f4c96b" stroke-width="2.5"/>
+              <text x="0" y="35" text-anchor="middle" class="svg-tiny" fill="#e9c779">SG A</text>
+            </g>
+            <g id="security-b" class="security-guard" transform="translate(925 462)">
+              <path d="M0 -18 L16 -12 L14 7 L0 18 L-14 7 L-16 -12 Z" fill="#302452" stroke="#b695f5" stroke-width="2"/>
+              <path d="M-6 -1 L-1 5 L8 -6" fill="none" stroke="#d9c8ff" stroke-width="2.5"/>
+              <text x="0" y="35" text-anchor="middle" class="svg-tiny" fill="#d2baff">SG B</text>
+            </g>
+            <g id="terminal-panel" opacity="0">
+              <rect x="300" y="475" width="500" height="100" rx="12" fill="#06111e" stroke="#3b6c8e"/>
+              <circle cx="320" cy="492" r="4" fill="#ff6b6b"/><circle cx="334" cy="492" r="4" fill="#e9b84f"/><circle cx="348" cy="492" r="4" fill="#45e0a0"/>
+              <text x="320" y="515" class="terminal-text" fill="#77e6b4">$ ssh -i ~/.ssh/id_ed25519 ec2-user@&lt;PRIVATE_IP&gt;</text>
+              <text x="320" y="536" class="terminal-text" fill="#b8d7ef">Authenticating with public key...</text>
+              <text x="320" y="557" class="terminal-text" fill="#45e0a0">Successfully connected to EC2 Instance B</text>
+            </g>
+            <!-- Moving objects use SVG motion paths. -->
+            <g id="moving-request" class="moving-object">
+              <g transform="translate(-10 -10)"><rect width="22" height="17" rx="3" fill="#53baff" stroke="#d7f0ff"/><path d="M1 2 L11 10 L21 2" fill="none" stroke="#fff" stroke-width="1.4"/></g>
+              <animateMotion dur="3.2s" repeatCount="indefinite" rotate="auto"><mpath href="#path-request"/></animateMotion>
+            </g>
+            <g id="moving-key" class="moving-object">
+              <g transform="translate(-12 -12)" fill="none" stroke="#e9b84f" stroke-width="3"><circle cx="8" cy="8" r="6"/><path d="M13 13 L23 23 M18 18 L22 14 M21 21 L25 17"/></g>
+              <animateMotion dur="4.2s" repeatCount="indefinite"><mpath href="#path-key"/></animateMotion>
+            </g>
+            <g id="moving-lock" class="moving-object">
+              <g transform="translate(-11 -12)"><rect x="0" y="10" width="23" height="18" rx="4" fill="#45e0a0" stroke="#c8ffe7"/><path d="M5 10 V6 A6 6 0 0 1 17 6 V10" fill="none" stroke="#c8ffe7" stroke-width="3"/><circle cx="11" cy="18" r="2" fill="#123e35"/></g>
+              <animateMotion dur="3.6s" repeatCount="indefinite"><mpath href="#path-ab"/></animateMotion>
+            </g>
+            <g id="moving-check" class="moving-object">
+              <circle r="16" fill="#45e0a0" stroke="#c8ffe7" stroke-width="2"/><path d="M-7 0 L-2 6 L8 -7" fill="none" stroke="#063e2a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <animateMotion dur="3.4s" repeatCount="indefinite"><mpath href="#path-return"/></animateMotion>
+            </g>
+            <g id="moving-cross" class="moving-object">
+              <circle r="15" fill="#ff626e" stroke="#ffd5d8" stroke-width="2"/><path d="M-5 -5 L5 5 M5 -5 L-5 5" stroke="#5a0c18" stroke-width="3" stroke-linecap="round"/>
+              <animateMotion dur="2.8s" repeatCount="indefinite"><mpath href="#path-ab"/></animateMotion>
+            </g>
+            <g id="keypair-objects" opacity="0">
+              <g transform="translate(435 465)"><rect width="105" height="55" rx="10" fill="#112a42" stroke="#e9b84f"/><text x="52" y="22" text-anchor="middle" class="svg-small" fill="#f4c96b">PRIVATE</text><text x="52" y="40" text-anchor="middle" class="svg-tiny" fill="#d9e9f5">id_ed25519</text></g>
+              <g transform="translate(555 465)"><rect width="105" height="55" rx="10" fill="#112a42" stroke="#53baff"/><text x="52" y="22" text-anchor="middle" class="svg-small" fill="#7ecbff">PUBLIC</text><text x="52" y="40" text-anchor="middle" class="svg-tiny" fill="#d9e9f5">id_ed25519.pub</text></g>
+            </g>
+            <g id="auth-list" opacity="0">
+              <rect x="711" y="452" width="158" height="40" rx="8" fill="#211d3a" stroke="#b695f5"/>
+              <text x="790" y="468" text-anchor="middle" class="svg-tiny" fill="#c5a9ff">authorized_keys</text>
+              <text x="790" y="483" text-anchor="middle" class="svg-tiny" fill="#d7d0eb">public key approved ✓</text>
+            </g>
+            <g id="status-failure" opacity="0">
+              <rect x="425" y="170" width="250" height="36" rx="18" fill="#4a1822" stroke="#ff626e"/>
+              <text x="550" y="193" text-anchor="middle" class="svg-small" fill="#ffd5d8">CONNECTION REJECTED</text>
+            </g>
+          </svg>
+        </div>
+        <div class="diagram-footer"><span><i class="footer-dot blue"></i> SSH request path</span><span><i class="footer-dot green"></i> Authenticated session</span><span><i class="footer-dot red"></i> Blocked / rejected</span><span class="diagram-hint">Illustrative network · not a live AWS account</span></div>
+      </section>
+
+      <section class="lesson-card" aria-live="polite" aria-atomic="true">
+        <div class="lesson-heading"><div><p class="eyebrow" id="lesson-eyebrow">STEP 01 · FOUNDATION</p><h3 id="lesson-title">AWS VPC and two EC2 instances</h3></div><span class="lesson-index" id="lesson-index">01<span>/09</span></span></div>
+        <div class="lesson-grid">
+          <article><div class="section-label"><span class="label-dot gold"></span> IN PLAIN WORDS</div><p id="plain-text">The VPC is your secured campus. EC2 A is the reception desk in the public area; EC2 B is a restricted room with no direct public entrance.</p></article>
+          <article><div class="section-label"><span class="label-dot blue"></span> TECHNICAL EXPLANATION</div><p id="technical-text">In us-east-1, place the bastion in a public subnet and the target in a private subnet. The bastion needs a route to the target, and EC2 B must accept SSH from the bastion security group.</p></article>
+          <article><div class="section-label"><span class="label-dot green"></span> WATCH THE ANIMATION</div><p id="watch-text">Follow the highlighted network boundary and notice that the target server stays inside the private subnet.</p></article>
+        </div>
+        <div class="command-area" id="command-area">
+          <div class="command-heading"><div><span class="terminal-badge">$_</span><div><strong>Command reference</strong><small id="command-note">No command needed for this overview.</small></div></div><button id="copy-command" class="copy-btn" disabled>Copy command</button></div>
+          <pre class="command-box"><code id="command-text"># Explore the diagram to begin</code></pre>
+          <p class="command-explain" id="command-explain">Commands are examples for Amazon Linux 2023. Replace placeholders with your own values.</p>
+        </div>
+        <div class="lesson-nav"><button id="prev-btn" class="nav-btn secondary" disabled>← Previous step</button><div class="step-dots" id="step-dots" aria-label="Step selection"><button class="dot active" data-step="0" aria-label="Go to step 1"></button><button class="dot" data-step="1" aria-label="Go to step 2"></button><button class="dot" data-step="2" aria-label="Go to step 3"></button><button class="dot" data-step="3" aria-label="Go to step 4"></button><button class="dot" data-step="4" aria-label="Go to step 5"></button><button class="dot" data-step="5" aria-label="Go to step 6"></button><button class="dot" data-step="6" aria-label="Go to step 7"></button><button class="dot" data-step="7" aria-label="Go to step 8"></button><button class="dot" data-step="8" aria-label="Go to step 9"></button></div><button id="next-btn" class="nav-btn primary">Next step →</button></div>
+      </section>
+      <footer class="page-footer"><span>Learn the path. Protect the key.</span><span>Made for curious cloud builders · <strong>#Buildwithvinit</strong></span></footer>
+    </main>
+  </div>
+  <script src="js/app.js"></script>
+</body>
+</html>
